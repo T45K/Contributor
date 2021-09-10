@@ -37,12 +37,11 @@ dependencies {
     // This dependency is used by the application.
     implementation("com.google.guava:guava:30.1-jre")
 
+    // Added by T45K
     implementation("org.kohsuke:github-api:1.132")
-
     implementation("org.eclipse.jgit:org.eclipse.jgit:5.12.0.202106070339-r")
-
     implementation("org.jsoup:jsoup:1.14.2")
-
+    implementation("org.eclipse.jdt:org.eclipse.jdt.core:3.22.0")
     testImplementation("io.mockk:mockk:1.12.0")
 
     // Use the Kotlin test library.
