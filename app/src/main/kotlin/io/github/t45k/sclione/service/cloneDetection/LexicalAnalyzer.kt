@@ -1,4 +1,4 @@
-package io.github.t45k.sclione.service
+package io.github.t45k.sclione.service.cloneDetection
 
 import io.github.t45k.sclione.util.splitBy
 import org.eclipse.jdt.core.ToolFactory
