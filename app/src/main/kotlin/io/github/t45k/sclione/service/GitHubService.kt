@@ -7,17 +7,18 @@ import org.kohsuke.github.GHIssueState
 import org.kohsuke.github.GitHub
 import org.kohsuke.github.GitHubBuilder
 
-class GitHubService {
+class GitHubService(private val token: String) {
 
     /**
      * GitHub APIとスクレイピングを用いてPR番号とマージコミットを取得する
      * スクレイピングはやりすぎると接続をブロックされるので注意する
      */
-    fun fetchPrInfoSequence(token: String, repositoryName: String): Sequence<PrInfo> =
+    fun fetchPrInfoSequence(repositoryName: String): Sequence<PrInfo> =
         buildGitHubClient(token)
             .getRepository(repositoryName)
             .getPullRequests(GHIssueState.CLOSED)
             .asSequence()
+            .filter { it.isMerged }
             .map { PrInfo(it.number, fetchMergeCommitSha(repositoryName, it.number)) }
 
     @VisibleForTesting

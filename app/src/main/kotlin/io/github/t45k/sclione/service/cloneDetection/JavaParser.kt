@@ -19,8 +19,8 @@ class JavaParser(private val lexicalAnalyzer: LexicalAnalyzer) {
         ASTParser.newParser(AST.JLS14)
             .apply { this.setSource(javaFile.readText().toCharArray()) }
             .createAST(NullProgressMonitor())
-            .let {
-                val compilationUnit = it as CompilationUnit
+            .let { it as CompilationUnit }
+            .let { compilationUnit ->
                 fun ASTNode.isMoreThanFiveLines(): Boolean =
                     compilationUnit.getLineNumber(this.startPosition + this.length) -
                         compilationUnit.getLineNumber(this.startPosition) + 1 > 5
@@ -28,9 +28,7 @@ class JavaParser(private val lexicalAnalyzer: LexicalAnalyzer) {
                 val codeBlocks = mutableListOf<CodeBlock>()
                 object : ASTVisitor() {
                     override fun visit(node: MethodDeclaration): Boolean {
-                        if (node.body?.isMoreThanFiveLines() == false) {
-                            return false
-                        }
+                        node.body?.takeIf { it.isMoreThanFiveLines() } ?: return false
                         codeBlocks.add(
                             CodeBlock(
                                 javaFile,

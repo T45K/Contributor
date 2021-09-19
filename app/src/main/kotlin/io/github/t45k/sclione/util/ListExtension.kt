@@ -14,6 +14,6 @@ fun <T> List<T>.splitBy(elements: Set<T>): Sequence<List<T>> {
                 end++
             }
         }
-        yield(list.subList(begin, end))
+        yield(list.subList(begin, list.size))
     }.filter { it.isNotEmpty() }
 }

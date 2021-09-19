@@ -18,12 +18,17 @@ class FindInconsistencyUsecase(
     private val inconsistencyDetectionService: InconsistencyDetectionService,
 ) {
 
-    fun findInconsistencies(repositoryName: String, srcDirectoryName: String) {
-        val srcDirectory = Path.of("./strage", repositoryName, srcDirectoryName)
-        gitHubService.fetchPrInfoSequence("", repositoryName) // TODO
-            .map { prInfo ->
-                val parentCommitSha = gitService.getMergeBasedParentCommitSha(prInfo.mergeCommitSha)
+    fun findInconsistencies(repositoryName: String, srcDirName: String) {
+        val srcDirectory = Path.of("./storage", repositoryName, srcDirName)
+        gitHubService.fetchPrInfoSequence(repositoryName)
+            .filter { gitService.existsCommit(it.mergeCommitSha) }
+            .map { prInfo -> prInfo to gitService.getMergeBasedParentCommitSha(prInfo.mergeCommitSha) }
+            .filter { (prInfo, parentCommitSha) ->
                 gitService.checkout(parentCommitSha)
+                gitService.executeDiffCommand(parentCommitSha, prInfo.mergeCommitSha)
+                    .any { it.oldPath.endsWith(".java") }
+            }
+            .map { (prInfo, parentCommitSha) ->
                 val clones = Files.walk(srcDirectory)
                     .toList()
                     .filter { it.isRegularFile() && it.toString().endsWith(".java") }

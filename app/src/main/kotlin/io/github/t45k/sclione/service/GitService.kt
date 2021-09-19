@@ -23,13 +23,12 @@ import kotlin.io.path.exists
 
 @ExperimentalPathApi
 class GitService(private val repositoryName: String) {
-    private val git = cloneIfNotExists()
     private val repositoryPath: Path = Path.of("./storage/$repositoryName")
+    private val git = cloneIfNotExists()
 
     private fun cloneIfNotExists(): Git =
         if (repositoryPath.exists()) {
             Git(FileRepository(repositoryPath.resolve(".git").toFile()))
-                .apply { this.pull().call() }
         } else {
             Git.cloneRepository()
                 .setURI("https://github.com/$repositoryName.git")
@@ -46,8 +45,8 @@ class GitService(private val repositoryName: String) {
     fun calcFileDiff(path: Path, baseCommitSha: String, mergedCommitSha: String): List<Edit> {
         val fileName = repositoryPath.relativize(path).toString()
         val entry: DiffEntry = executeDiffCommand(baseCommitSha, mergedCommitSha)
-            .first { it.oldPath == fileName }
-            .takeIf { it.changeType == DiffEntry.ChangeType.MODIFY }
+            .firstOrNull { it.oldPath == fileName }
+            ?.takeIf { it.changeType == DiffEntry.ChangeType.MODIFY }
             ?: return emptyList()
 
         val oldText: RawText = readBlob(entry.oldId)
@@ -57,9 +56,9 @@ class GitService(private val repositoryName: String) {
             ?: emptyList()
     }
 
-    private fun executeDiffCommand(oldCommitHash: String, newCommitHash: String): List<DiffEntry> {
-        val oldTreeParser = prepareTreeParser(ObjectId.fromString(oldCommitHash))
-        val newTreeParser = prepareTreeParser(ObjectId.fromString(newCommitHash))
+    fun executeDiffCommand(oldCommitHash: String, newCommitHash: String): List<DiffEntry> {
+        val oldTreeParser = prepareTreeParser(git.repository.resolve(oldCommitHash))
+        val newTreeParser = prepareTreeParser(git.repository.resolve(newCommitHash))
         return DiffFormatter(DisabledOutputStream.INSTANCE)
             .apply { this.setRepository(git.repository) }
             .apply { this.setDiffComparator(RawTextComparator.DEFAULT) }
@@ -72,8 +71,9 @@ class GitService(private val repositoryName: String) {
             .open(blobId.toObjectId(), Constants.OBJ_BLOB)
             .run { RawText(this.cachedBytes) }
 
+    // マージ先のブランチが消えてたりする
     fun getMergeBasedParentCommitSha(commitSha: String): String {
-        val commitId: ObjectId = ObjectId.fromString(commitSha)
+        val commitId: ObjectId = git.repository.resolve(commitSha) ?: throw RuntimeException()
         val parentCommitId: ObjectId = git.repository
             .parseCommit(commitId)
             .parents[0]
@@ -94,4 +94,6 @@ class GitService(private val repositoryName: String) {
         revWalk.dispose()
         return treeParser
     }
+
+    fun existsCommit(commitSha: String): Boolean = git.repository.resolve(commitSha) != null
 }
