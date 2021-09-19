@@ -21,7 +21,7 @@ internal class InconsistencyDetectionServiceTest {
         assertEquals(1, inconsistency.size)
         assertEquals(
             (7..14).toList(),
-            inconsistency[0].unModifiedCodeList.map { it.endLine }
+            inconsistency[0].unmodifiedCodeList.map { it.endLine }
         )
     }
 }

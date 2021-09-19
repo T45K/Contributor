@@ -53,5 +53,5 @@ dependencies {
 
 application {
     // Define the main class for the application.
-    mainClass.set("io.github.t45k.sclione.AppKt")
+    mainClass.set("io.github.t45k.sclione.SClioneMainKt")
 }

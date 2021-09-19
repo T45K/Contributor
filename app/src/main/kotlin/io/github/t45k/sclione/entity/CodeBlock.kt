@@ -9,5 +9,5 @@ data class CodeBlock(
     val tokenSequence: List<Int>,
     var isModified: Boolean = false,
 ) {
-    fun loc(): Int = endLine - startLine + 1
+    override fun toString(): String = "$path $startLine--$endLine"
 }

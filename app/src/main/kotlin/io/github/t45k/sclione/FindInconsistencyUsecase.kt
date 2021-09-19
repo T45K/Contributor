@@ -47,8 +47,13 @@ class FindInconsistencyUsecase(
                             modifiedCodeBlocks,
                             unmodifiedCodeBlocks.sortedBy { it.tokenSequence.size })
                     }
+                    .filter { it.unmodifiedCodeList.isNotEmpty() }
                 prInfo.number to clones
             }
-            .forEach { println(it) }
+            .filter { it.second.isNotEmpty() }
+            .forEach {
+                println(it.first)
+                println(it.second.joinToString("\n"))
+            }
     }
 }

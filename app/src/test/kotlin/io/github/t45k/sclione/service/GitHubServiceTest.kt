@@ -9,13 +9,13 @@ import kotlin.test.assertEquals
 
 internal class GitHubServiceTest {
 
-    private val sut: GitHubService = spyk(GitHubService())
+    private val sut: GitHubService = spyk(GitHubService(""))
 
     @Test
     fun testFetchPrInfoList() {
         every { sut.buildGitHubClient("") } returns GitHubBuilder().build()
 
-        val prInfoSequence: Sequence<PrInfo> = sut.fetchPrInfoSequence("", "T45K/CLIONE")
+        val prInfoSequence: Sequence<PrInfo> = sut.fetchPrInfoSequence("T45K/CLIONE")
 
         prInfoSequence.take(1)
             .forEach {

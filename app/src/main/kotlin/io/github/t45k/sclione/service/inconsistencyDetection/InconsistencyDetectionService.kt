@@ -25,6 +25,9 @@ class InconsistencyDetectionService {
                     .let { Inconsistency(modifiedCodeBlock, it) }
             }
 
+    /**
+     * LCS
+     */
     private fun compare(a: CodeBlock, b: CodeBlock): Boolean {
         val (shorter: List<Int>, longer: List<Int>) =
             if (a.tokenSequence.size < b.tokenSequence.size) {
