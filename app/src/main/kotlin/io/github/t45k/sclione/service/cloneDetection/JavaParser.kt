@@ -25,16 +25,24 @@ class JavaParser(private val lexicalAnalyzer: LexicalAnalyzer) {
                     compilationUnit.getLineNumber(this.startPosition + this.length) -
                         compilationUnit.getLineNumber(this.startPosition) + 1 > 5
 
+                val codeBlocks = mutableListOf<CodeBlock>()
                 object : ASTVisitor() {
                     override fun visit(node: MethodDeclaration): Boolean {
                         if (node.body?.isMoreThanFiveLines() == false) {
                             return false
                         }
-                        val tokens: List<Int> = lexicalAnalyzer.analyze(node.body.toString())
+                        codeBlocks.add(
+                            CodeBlock(
+                                javaFile,
+                                compilationUnit.getLineNumber(node.body.startPosition),
+                                compilationUnit.getLineNumber(node.body.startPosition + node.body.length),
+                                lexicalAnalyzer.analyze(node.body.toString())
+                            )
+                        )
                         return false
                     }
-                }
-                TODO()
+                }.run(compilationUnit::accept)
+                return codeBlocks
             }
 
     }
