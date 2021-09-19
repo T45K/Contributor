@@ -1,6 +1,7 @@
 package io.github.t45k.sclione.service.cloneDetection
 
 import io.github.t45k.sclione.entity.CodeBlock
+import io.github.t45k.sclione.service.inconsistencyDetection.InconsistencyDetectionService
 import java.nio.file.Path
 import kotlin.test.Test
 import kotlin.test.assertEquals

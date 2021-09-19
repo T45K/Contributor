@@ -1,4 +1,4 @@
-package io.github.t45k.sclione.service.cloneDetection
+package io.github.t45k.sclione.service.inconsistencyDetection
 
 import io.github.t45k.sclione.entity.CodeBlock
 import io.github.t45k.sclione.entity.Inconsistency
@@ -15,10 +15,10 @@ class InconsistencyDetectionService {
         modifiedCodeBlocks
             .map { modifiedCodeBlock ->
                 val begin = unmodifiedCodeBlocks
-                    .binarySearch { if (it.loc() * 10 / modifiedCodeBlock.loc() >= THRESHOLD) 1 else -1 }
+                    .binarySearch { if (it.tokenSequence.size * 10 / modifiedCodeBlock.tokenSequence.size >= THRESHOLD) 1 else -1 }
                     .inv()
                 val end = unmodifiedCodeBlocks
-                    .binarySearch { if (modifiedCodeBlock.loc() * 10 / it.loc() < THRESHOLD) 1 else -1 }
+                    .binarySearch { if (modifiedCodeBlock.tokenSequence.size * 10 / it.tokenSequence.size < THRESHOLD) 1 else -1 }
                     .inv()
                 unmodifiedCodeBlocks.subList(begin, end)
                     .filter { compare(modifiedCodeBlock, it) }

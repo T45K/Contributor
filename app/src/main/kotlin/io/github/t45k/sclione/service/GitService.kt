@@ -23,7 +23,7 @@ import kotlin.io.path.exists
 
 @ExperimentalPathApi
 class GitService(private val repositoryName: String) {
-    private val repositoryPath: Path = Path.of("./storage/$repositoryName")
+    private val repositoryPath: Path = Path.of("./storage/$repositoryName").toAbsolutePath()
     private val git = cloneIfNotExists()
 
     private fun cloneIfNotExists(): Git =
@@ -43,10 +43,9 @@ class GitService(private val repositoryName: String) {
     }
 
     fun calcFileDiff(path: Path, baseCommitSha: String, mergedCommitSha: String): List<Edit> {
-        val fileName = repositoryPath.relativize(path).toString()
         val entry: DiffEntry = executeDiffCommand(baseCommitSha, mergedCommitSha)
-            .firstOrNull { it.oldPath == fileName }
-            ?.takeIf { it.changeType == DiffEntry.ChangeType.MODIFY }
+            .filter { it.changeType == DiffEntry.ChangeType.MODIFY }
+            .firstOrNull { repositoryPath.resolve(it.oldPath).toRealPath() == path.toRealPath() }
             ?: return emptyList()
 
         val oldText: RawText = readBlob(entry.oldId)
@@ -71,9 +70,8 @@ class GitService(private val repositoryName: String) {
             .open(blobId.toObjectId(), Constants.OBJ_BLOB)
             .run { RawText(this.cachedBytes) }
 
-    // マージ先のブランチが消えてたりする
     fun getMergeBasedParentCommitSha(commitSha: String): String {
-        val commitId: ObjectId = git.repository.resolve(commitSha) ?: throw RuntimeException()
+        val commitId: ObjectId = git.repository.resolve(commitSha)
         val parentCommitId: ObjectId = git.repository
             .parseCommit(commitId)
             .parents[0]

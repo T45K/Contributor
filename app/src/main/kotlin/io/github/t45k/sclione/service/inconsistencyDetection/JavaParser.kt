@@ -1,9 +1,8 @@
-package io.github.t45k.sclione.service.cloneDetection
+package io.github.t45k.sclione.service.inconsistencyDetection
 
 import io.github.t45k.sclione.entity.CodeBlock
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jdt.core.dom.AST
-import org.eclipse.jdt.core.dom.ASTNode
 import org.eclipse.jdt.core.dom.ASTParser
 import org.eclipse.jdt.core.dom.ASTVisitor
 import org.eclipse.jdt.core.dom.CompilationUnit
@@ -21,20 +20,22 @@ class JavaParser(private val lexicalAnalyzer: LexicalAnalyzer) {
             .createAST(NullProgressMonitor())
             .let { it as CompilationUnit }
             .let { compilationUnit ->
-                fun ASTNode.isMoreThanFiveLines(): Boolean =
-                    compilationUnit.getLineNumber(this.startPosition + this.length) -
-                        compilationUnit.getLineNumber(this.startPosition) + 1 > 5
-
                 val codeBlocks = mutableListOf<CodeBlock>()
                 object : ASTVisitor() {
                     override fun visit(node: MethodDeclaration): Boolean {
-                        node.body?.takeIf { it.isMoreThanFiveLines() } ?: return false
+                        if (node.body == null) {
+                            return false
+                        }
+                        val tokenSequence = lexicalAnalyzer.analyze(node.body.toString())
+                        if (tokenSequence.size < 5) {
+                            return false
+                        }
                         codeBlocks.add(
                             CodeBlock(
                                 javaFile,
                                 compilationUnit.getLineNumber(node.body.startPosition),
                                 compilationUnit.getLineNumber(node.body.startPosition + node.body.length),
-                                lexicalAnalyzer.analyze(node.body.toString())
+                                tokenSequence
                             )
                         )
                         return false

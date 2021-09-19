@@ -1,4 +1,4 @@
-package io.github.t45k.sclione.service.cloneDetection
+package io.github.t45k.sclione.service.inconsistencyDetection
 
 import io.github.t45k.sclione.util.splitBy
 import org.eclipse.jdt.core.ToolFactory
@@ -22,7 +22,7 @@ class LexicalAnalyzer {
         ToolFactory.createScanner(false, false, false, "14")
             .also { it.source = text.toCharArray() }
             .let { scanner ->
-                sequence { yield(scanner.nextToken) }
+                generateSequence { scanner.nextToken }
                     .takeWhile { it != TokenNameEOF }
             }.toList()
             .splitBy(deliminators)

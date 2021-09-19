@@ -2,9 +2,9 @@ package io.github.t45k.sclione
 
 import io.github.t45k.sclione.service.GitHubService
 import io.github.t45k.sclione.service.GitService
-import io.github.t45k.sclione.service.cloneDetection.InconsistencyDetectionService
-import io.github.t45k.sclione.service.cloneDetection.JavaParser
-import io.github.t45k.sclione.service.cloneDetection.LexicalAnalyzer
+import io.github.t45k.sclione.service.inconsistencyDetection.InconsistencyDetectionService
+import io.github.t45k.sclione.service.inconsistencyDetection.JavaParser
+import io.github.t45k.sclione.service.inconsistencyDetection.LexicalAnalyzer
 import java.util.ResourceBundle
 import kotlin.io.path.ExperimentalPathApi
 
