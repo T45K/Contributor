@@ -29,27 +29,31 @@ class FindInconsistencyUsecase(
                     .any { it.oldPath.endsWith(".java") }
             }
             .map { (prInfo, parentCommitSha) ->
-                val clones = Files.walk(srcDirectory)
-                    .toList()
-                    .filter { it.isRegularFile() && it.toString().endsWith(".java") }
-                    .map { it.toAbsolutePath() to javaParser.collectCodeBlocks(it) }
-                    .onEach { (filePath, codeBlocks) ->
-                        for (edit in gitService.calcFileDiff(filePath, parentCommitSha, prInfo.mergeCommitSha)) {
-                            codeBlocks
-                                .filter { edit.endA >= it.startLine && it.endLine >= edit.beginA }
-                                .forEach { it.isModified = true }
+                runCatching {
+                    val clones = Files.walk(srcDirectory)
+                        .toList()
+                        .filter { it.isRegularFile() && it.toString().endsWith(".java") }
+                        .map { it.toAbsolutePath() to javaParser.collectCodeBlocks(it) }
+                        .onEach { (filePath, codeBlocks) ->
+                            for (edit in gitService.calcFileDiff(filePath, parentCommitSha, prInfo.mergeCommitSha)) {
+                                codeBlocks
+                                    .filter { edit.endA >= it.startLine && it.endLine >= edit.beginA }
+                                    .forEach { it.isModified = true }
+                            }
                         }
-                    }
-                    .flatMap { it.second }
-                    .partition { it.isModified }
-                    .let { (modifiedCodeBlocks, unmodifiedCodeBlocks) ->
-                        inconsistencyDetectionService.detectInconsistency(
-                            modifiedCodeBlocks,
-                            unmodifiedCodeBlocks.sortedBy { it.tokenSequence.size })
-                    }
-                    .filter { it.unmodifiedCodeList.isNotEmpty() }
-                prInfo.number to clones
+                        .flatMap { it.second }
+                        .partition { it.isModified }
+                        .let { (modifiedCodeBlocks, unmodifiedCodeBlocks) ->
+                            inconsistencyDetectionService.detectInconsistency(
+                                modifiedCodeBlocks,
+                                unmodifiedCodeBlocks.sortedBy { it.tokenSequence.size })
+                        }
+                        .filter { it.unmodifiedCodeList.isNotEmpty() }
+                    prInfo.number to clones
+                }
             }
+            .filter { it.isSuccess }
+            .map { it.getOrThrow() }
             .filter { it.second.isNotEmpty() }
             .forEach {
                 println(it.first)
