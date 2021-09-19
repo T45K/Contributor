@@ -1,4 +1,4 @@
-package io.github.t45k.sclione.service.util
+package io.github.t45k.sclione.util
 
 import io.github.t45k.sclione.util.splitBy
 import kotlin.test.Test
