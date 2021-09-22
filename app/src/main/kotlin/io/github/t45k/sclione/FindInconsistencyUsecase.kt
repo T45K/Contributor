@@ -22,42 +22,48 @@ class FindInconsistencyUsecase(
         val srcDirectory = Path.of("./storage", repositoryName, srcDirName)
         gitHubService.fetchPrInfoSequence(repositoryName)
             .filter { gitService.existsCommit(it.mergeCommitSha) }
-            .map { prInfo -> prInfo to gitService.getMergeBasedParentCommitSha(prInfo.mergeCommitSha) }
-            .filter { (prInfo, parentCommitSha) ->
-                gitService.checkout(parentCommitSha)
-                gitService.executeDiffCommand(parentCommitSha, prInfo.mergeCommitSha)
-                    .any { it.oldPath.endsWith(".java") }
+            .map { prInfo -> prInfo to gitService.getMergeBaseCommitSha(prInfo.mergeCommitSha) }
+            .filter { (prInfo, baseCommitSha) ->
+                gitService.checkout(baseCommitSha)
+                gitService.includesModifiedJavaFiles(baseCommitSha, prInfo.mergeCommitSha)
             }
-            .map { (prInfo, parentCommitSha) ->
-                runCatching {
-                    val clones = Files.walk(srcDirectory)
-                        .toList()
-                        .filter { it.isRegularFile() && it.toString().endsWith(".java") }
-                        .map { it.toAbsolutePath() to javaParser.collectCodeBlocks(it) }
-                        .onEach { (filePath, codeBlocks) ->
-                            for (edit in gitService.calcFileDiff(filePath, parentCommitSha, prInfo.mergeCommitSha)) {
-                                codeBlocks
-                                    .filter { edit.endA >= it.startLine && it.endLine >= edit.beginA }
-                                    .forEach { it.isModified = true }
-                            }
+            .mapAndFilter { (prInfo, baseCommitSha) ->
+                val clones = Files.walk(srcDirectory)
+                    .toList()
+                    .filter { it.isRegularFile() && it.toString().endsWith(".java") }
+                    .map { it.toAbsolutePath() to javaParser.collectCodeBlocks(it) }
+                    .onEach { (filePath, codeBlocks) ->
+                        for (edit in gitService.calcFileDiff(filePath, baseCommitSha, prInfo.mergeCommitSha)) {
+                            codeBlocks
+                                .filter { edit.endA >= it.startLine && it.endLine >= edit.beginA }
+                                .forEach { it.isModified = true }
                         }
-                        .flatMap { it.second }
-                        .partition { it.isModified }
-                        .let { (modifiedCodeBlocks, unmodifiedCodeBlocks) ->
-                            inconsistencyDetectionService.detectInconsistency(
-                                modifiedCodeBlocks,
-                                unmodifiedCodeBlocks.sortedBy { it.tokenSequence.size })
-                        }
-                        .filter { it.unmodifiedCodeList.isNotEmpty() }
-                    prInfo.number to clones
-                }
+                    }
+                    .flatMap { it.second }
+                    .partition { it.isModified }
+                    .let { (modifiedCodeBlocks, unmodifiedCodeBlocks) ->
+                        inconsistencyDetectionService.detectInconsistency(
+                            modifiedCodeBlocks,
+                            unmodifiedCodeBlocks.sortedBy { it.tokenSequence.size })
+                    }
+                    .filter { it.unmodifiedCodeList.isNotEmpty() }
+                prInfo.number to clones
             }
-            .filter { it.isSuccess }
-            .map { it.getOrThrow() }
             .filter { it.second.isNotEmpty() }
             .forEach {
                 println(it.first)
                 println(it.second.joinToString("\n"))
             }
     }
+
+    private fun <T, R> Sequence<T>.mapAndFilter(function: (T) -> R?): Sequence<R> =
+        this.map {
+            try {
+                function(it)
+            } catch (e: Exception) {
+                null
+            }
+        }
+            .filter { it != null }
+            .map { it!! }
 }
