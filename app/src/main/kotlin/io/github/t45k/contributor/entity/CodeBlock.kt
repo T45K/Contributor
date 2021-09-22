@@ -9,5 +9,15 @@ data class CodeBlock(
     val tokenSequence: List<Int>,
     var isModified: Boolean = false,
 ) {
+    companion object {
+        const val THRESHOLD = 7
+    }
+
     override fun toString(): String = "$path $startLine--$endLine"
+
+    fun hasLowerSizeOf(codeBlock: CodeBlock): Boolean =
+        this.tokenSequence.size * 10 / codeBlock.tokenSequence.size >= THRESHOLD
+
+    fun hasUpperSizeOf(codeBlock: CodeBlock): Boolean =
+        codeBlock.tokenSequence.size * 10 / this.tokenSequence.size < THRESHOLD
 }
