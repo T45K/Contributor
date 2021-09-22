@@ -55,7 +55,7 @@ class GitService(private val repositoryName: String) {
             ?: emptyList()
     }
 
-    fun executeDiffCommand(oldCommitHash: String, newCommitHash: String): List<DiffEntry> {
+    private fun executeDiffCommand(oldCommitHash: String, newCommitHash: String): List<DiffEntry> {
         val oldTreeParser = prepareTreeParser(git.repository.resolve(oldCommitHash))
         val newTreeParser = prepareTreeParser(git.repository.resolve(newCommitHash))
         return DiffFormatter(DisabledOutputStream.INSTANCE)
@@ -70,7 +70,7 @@ class GitService(private val repositoryName: String) {
             .open(blobId.toObjectId(), Constants.OBJ_BLOB)
             .run { RawText(this.cachedBytes) }
 
-    fun getMergeBasedParentCommitSha(commitSha: String): String {
+    fun getMergeBaseCommitSha(commitSha: String): String {
         val commitId: ObjectId = git.repository.resolve(commitSha)
         val parentCommitId: ObjectId = git.repository
             .parseCommit(commitId)
@@ -94,4 +94,7 @@ class GitService(private val repositoryName: String) {
     }
 
     fun existsCommit(commitSha: String): Boolean = git.repository.resolve(commitSha) != null
+
+    fun includesModifiedJavaFiles(oldCommitHash: String, newCommitHash: String): Boolean =
+        executeDiffCommand(oldCommitHash, newCommitHash).any { it.oldPath.endsWith(".java") }
 }
