@@ -1,6 +1,6 @@
-package io.github.t45k.sclione.service.inconsistencyDetection
+package io.github.t45k.contributor.service.inconsistencyDetection
 
-import io.github.t45k.sclione.util.splitBy
+import io.github.t45k.contributor.util.splitBy
 import org.eclipse.jdt.core.ToolFactory
 import org.eclipse.jdt.core.compiler.ITerminalSymbols
 import org.eclipse.jdt.core.compiler.ITerminalSymbols.TokenNameEOF

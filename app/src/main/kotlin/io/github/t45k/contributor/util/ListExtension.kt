@@ -1,4 +1,4 @@
-package io.github.t45k.sclione.util
+package io.github.t45k.contributor.util
 
 fun <T> List<T>.splitBy(elements: Set<T>): Sequence<List<T>> {
     var begin = 0

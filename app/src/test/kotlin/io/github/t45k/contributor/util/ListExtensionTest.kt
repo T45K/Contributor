@@ -1,6 +1,5 @@
-package io.github.t45k.sclione.util
+package io.github.t45k.contributor.util
 
-import io.github.t45k.sclione.util.splitBy
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

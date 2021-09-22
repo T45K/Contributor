@@ -1,4 +1,4 @@
-package io.github.t45k.sclione.entity
+package io.github.t45k.contributor.entity
 
 data class Inconsistency(
     val modifiedCode: CodeBlock,

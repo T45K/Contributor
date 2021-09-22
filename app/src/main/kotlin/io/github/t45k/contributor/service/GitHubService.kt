@@ -1,7 +1,7 @@
-package io.github.t45k.sclione.service
+package io.github.t45k.contributor.service
 
 import com.google.common.annotations.VisibleForTesting
-import io.github.t45k.sclione.entity.PrInfo
+import io.github.t45k.contributor.entity.PrInfo
 import org.jsoup.Jsoup
 import org.kohsuke.github.GHIssueState
 import org.kohsuke.github.GitHub

@@ -1,6 +1,6 @@
-package io.github.t45k.sclione.service
+package io.github.t45k.contributor.service
 
-import io.github.t45k.sclione.entity.PrInfo
+import io.github.t45k.contributor.entity.PrInfo
 import io.mockk.every
 import io.mockk.spyk
 import org.kohsuke.github.GitHubBuilder

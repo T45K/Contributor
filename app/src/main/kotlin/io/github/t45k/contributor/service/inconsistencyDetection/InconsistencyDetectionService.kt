@@ -1,7 +1,7 @@
-package io.github.t45k.sclione.service.inconsistencyDetection
+package io.github.t45k.contributor.service.inconsistencyDetection
 
-import io.github.t45k.sclione.entity.CodeBlock
-import io.github.t45k.sclione.entity.Inconsistency
+import io.github.t45k.contributor.entity.CodeBlock
+import io.github.t45k.contributor.entity.Inconsistency
 
 class InconsistencyDetectionService {
     companion object {

@@ -1,6 +1,6 @@
-package io.github.t45k.sclione.service.inconsistencyDetection
+package io.github.t45k.contributor.service.inconsistencyDetection
 
-import io.github.t45k.sclione.entity.CodeBlock
+import io.github.t45k.contributor.entity.CodeBlock
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jdt.core.dom.AST
 import org.eclipse.jdt.core.dom.ASTParser

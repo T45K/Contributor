@@ -1,9 +1,9 @@
-package io.github.t45k.sclione
+package io.github.t45k.contributor
 
-import io.github.t45k.sclione.service.GitHubService
-import io.github.t45k.sclione.service.GitService
-import io.github.t45k.sclione.service.inconsistencyDetection.InconsistencyDetectionService
-import io.github.t45k.sclione.service.inconsistencyDetection.JavaParser
+import io.github.t45k.contributor.service.GitHubService
+import io.github.t45k.contributor.service.GitService
+import io.github.t45k.contributor.service.inconsistencyDetection.InconsistencyDetectionService
+import io.github.t45k.contributor.service.inconsistencyDetection.JavaParser
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.ExperimentalPathApi

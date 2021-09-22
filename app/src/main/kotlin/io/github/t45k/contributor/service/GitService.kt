@@ -1,4 +1,4 @@
-package io.github.t45k.sclione.service
+package io.github.t45k.contributor.service
 
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffAlgorithm

@@ -1,4 +1,4 @@
-package io.github.t45k.sclione.entity
+package io.github.t45k.contributor.entity
 
 /**
  * マージ済みのコミットを扱うので，headとbaseだとその間の関係ない変更も含んでしまう
