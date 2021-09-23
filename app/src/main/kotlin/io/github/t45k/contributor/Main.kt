@@ -26,10 +26,13 @@ fun main(args: Array<String>) {
             .takeIf { gitRepository.includesModifiedJavaFiles(it) }
             ?: continue
         val inconsistencies: List<Inconsistency> =
-            gitRepository.collectJavaFilesOnCommit(Path.of(srcDirName), mergeCommit)
-                .flatMap { it.extractCodeBlocks() }
-                .findInconsistencies()
-                .takeIf { it.isNotEmpty() }
+            runCatching {
+                gitRepository.collectJavaFilesOnCommit(Path.of(srcDirName), mergeCommit)
+                    .flatMap { it.extractCodeBlocks() }
+                    .findInconsistencies()
+            }
+                .getOrNull()
+                ?.takeIf { it.isNotEmpty() }
                 ?: continue
 
         resultFile.writeText(pullRequest.number.toString() + System.lineSeparator())
