@@ -44,7 +44,7 @@ fun main(args: Array<String>) {
             |${inconsistencies.joinToString(System.lineSeparator())}
             |
             |
-        """.trim()
+        """.trimMargin()
         )
     }
 }
