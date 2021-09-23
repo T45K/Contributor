@@ -11,12 +11,10 @@ import org.eclipse.jgit.treewalk.AbstractTreeIterator
 import org.eclipse.jgit.treewalk.CanonicalTreeParser
 import org.eclipse.jgit.util.io.DisabledOutputStream
 
-class GitDiff(private val git: Git, private val commit: GitCommit) {
-    private val comparison: GitCommit = getMergeBaseCommitSha(commit)
-
-    fun execute(): List<DiffEntry> {
-        val oldTreeParser = prepareTreeParser(git.repository.resolve(commit.sha))
-        val newTreeParser = prepareTreeParser(git.repository.resolve(comparison.sha))
+class GitDiff(private val git: Git, private val newCommit: GitCommit, private val oldCommit: GitCommit) {
+    private fun execute(): List<DiffEntry> {
+        val newTreeParser = prepareTreeParser(git.repository.resolve(newCommit.sha))
+        val oldTreeParser = prepareTreeParser(git.repository.resolve(oldCommit.sha))
         return DiffFormatter(DisabledOutputStream.INSTANCE)
             .apply { this.setRepository(git.repository) }
             .apply { this.setDiffComparator(RawTextComparator.DEFAULT) }
@@ -35,19 +33,5 @@ class GitDiff(private val git: Git, private val commit: GitCommit) {
             .also { it.reset(git.repository.newObjectReader(), tree) }
         revWalk.dispose()
         return treeParser
-    }
-
-    private fun getMergeBaseCommitSha(commit: GitCommit): GitCommit {
-        val commitId: ObjectId = git.repository.resolve(commit.sha)
-        val parentCommitId: ObjectId = git.repository
-            .parseCommit(commitId)
-            .parents[0]
-        return RevWalk(git.repository)
-            .apply { this.revFilter = RevFilter.MERGE_BASE }
-            .apply { this.markStart(this.parseCommit(parentCommitId)) }
-            .apply { this.markStart(this.parseCommit(commitId)) }
-            .next()
-            .name
-            .let { GitCommit(it) }
     }
 }

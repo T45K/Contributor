@@ -11,6 +11,9 @@ import org.eclipse.jgit.diff.RawTextComparator
 import org.eclipse.jgit.internal.storage.file.FileRepository
 import org.eclipse.jgit.lib.AbbreviatedObjectId
 import org.eclipse.jgit.lib.Constants
+import org.eclipse.jgit.lib.ObjectId
+import org.eclipse.jgit.revwalk.RevWalk
+import org.eclipse.jgit.revwalk.filter.RevFilter
 import org.kohsuke.github.GHIssueState
 import org.kohsuke.github.GitHub
 import org.kohsuke.github.GitHubBuilder
@@ -41,13 +44,14 @@ class GitRepository private constructor(private val repositoryName: RepositoryNa
             .map { PullRequest(it.number, repositoryName) }
 
     fun includesModifiedJavaFiles(commit: GitCommit): Boolean =
-        GitDiff(git, commit)
+        GitDiff(git, commit, getMergeBaseCommitSha(commit))
             .getModifiedJavaFiles()
             .isNotEmpty()
 
     fun collectJavaFilesOnCommit(srcDir: Path, commit: GitCommit): List<TrackedJavaFiles> {
-        checkout(commit)
-        val javaFileToDiffEntries: Map<Path, List<BeginEndLine>> = GitDiff(git, commit)
+        val parentCommit = getMergeBaseCommitSha(commit)
+        checkout(parentCommit)
+        val javaFileToDiffEntries: Map<Path, List<BeginEndLine>> = GitDiff(git, commit, parentCommit)
             .getModifiedJavaFiles()
             .associateBy(
                 { Path.of(it.oldPath) },
@@ -87,4 +91,18 @@ class GitRepository private constructor(private val repositoryName: RepositoryNa
         git.repository.newObjectReader()
             .open(blobId.toObjectId(), Constants.OBJ_BLOB)
             .run { RawText(this.cachedBytes) }
+
+    private fun getMergeBaseCommitSha(commit: GitCommit): GitCommit {
+        val commitId: ObjectId = git.repository.resolve(commit.sha)
+        val parentCommitId: ObjectId = git.repository
+            .parseCommit(commitId)
+            .parents[0]
+        return RevWalk(git.repository)
+            .apply { this.revFilter = RevFilter.MERGE_BASE }
+            .apply { this.markStart(this.parseCommit(parentCommitId)) }
+            .apply { this.markStart(this.parseCommit(commitId)) }
+            .next()
+            .name
+            .let { GitCommit(it) }
+    }
 }
