@@ -7,7 +7,9 @@ class PullRequest(val number: Int, private val repositoryName: RepositoryName) {
         number.takeIf { it > 0 } ?: throw InvalidPullRequestNumberException(number)
     }
 
-    fun fetchMergeCommitSha(): GitCommit =
+    val mergeCommit: GitCommit by lazy { fetchMergeCommitSha() }
+
+    private fun fetchMergeCommitSha(): GitCommit =
         (Jsoup.connect("${repositoryName.toGitHubUrl()}/pull/$number")
             .get()
             .text()
