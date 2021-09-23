@@ -1,4 +1,4 @@
-package io.github.t45k.contributor.entity
+package io.github.t45k.contributor.sourceCode
 
 import java.nio.file.Path
 

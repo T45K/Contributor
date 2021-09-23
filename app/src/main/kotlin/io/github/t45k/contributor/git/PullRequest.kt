@@ -1,4 +1,4 @@
-package io.github.t45k.contributor.entity
+package io.github.t45k.contributor.git
 
 import org.jsoup.Jsoup
 

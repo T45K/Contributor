@@ -1,9 +1,9 @@
 package io.github.t45k.contributor
 
-import io.github.t45k.contributor.entity.GitCommit
-import io.github.t45k.contributor.entity.GitRepository
-import io.github.t45k.contributor.entity.RepositoryName
-import io.github.t45k.contributor.entity.findInconsistencies
+import io.github.t45k.contributor.git.GitCommit
+import io.github.t45k.contributor.git.GitRepository
+import io.github.t45k.contributor.git.RepositoryName
+import io.github.t45k.contributor.sourceCode.findInconsistencies
 import java.nio.file.Path
 import java.util.ResourceBundle
 import kotlin.io.path.appendText

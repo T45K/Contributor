@@ -1,4 +1,4 @@
-package io.github.t45k.contributor.entity
+package io.github.t45k.contributor.sourceCode
 
 fun List<CodeBlock>.findInconsistencies(): List<Inconsistency> {
     val (modifiedCodeBlocks, unmodifiedCodeBlocks) = this.partition { it.isModified }

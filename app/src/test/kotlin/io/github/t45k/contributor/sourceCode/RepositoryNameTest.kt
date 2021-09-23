@@ -1,5 +1,7 @@
-package io.github.t45k.contributor.entity
+package io.github.t45k.contributor.sourceCode
 
+import io.github.t45k.contributor.git.InvalidRepositoryNameException
+import io.github.t45k.contributor.git.RepositoryName
 import java.nio.file.Path
 import kotlin.test.Test
 import kotlin.test.assertEquals

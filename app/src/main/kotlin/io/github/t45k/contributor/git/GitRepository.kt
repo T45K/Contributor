@@ -1,5 +1,7 @@
-package io.github.t45k.contributor.entity
+package io.github.t45k.contributor.git
 
+import io.github.t45k.contributor.sourceCode.BeginEndLine
+import io.github.t45k.contributor.sourceCode.TrackedJavaFiles
 import io.github.t45k.contributor.util.walk
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffAlgorithm

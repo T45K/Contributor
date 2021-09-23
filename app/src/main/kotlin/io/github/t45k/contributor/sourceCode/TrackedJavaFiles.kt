@@ -1,4 +1,4 @@
-package io.github.t45k.contributor.entity
+package io.github.t45k.contributor.sourceCode
 
 import org.eclipse.core.runtime.NullProgressMonitor
 import org.eclipse.jdt.core.dom.AST
