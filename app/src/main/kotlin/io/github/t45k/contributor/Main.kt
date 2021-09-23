@@ -25,15 +25,14 @@ fun main(args: Array<String>) {
         val mergeCommit: GitCommit = pullRequest.mergeCommit
             .takeIf { gitRepository.includesModifiedJavaFiles(it) }
             ?: continue
-        val inconsistencies: List<Inconsistency> =
-            runCatching {
-                gitRepository.collectJavaFilesOnCommit(Path.of(srcDirName), mergeCommit)
-                    .flatMap { it.extractCodeBlocks() }
-                    .findInconsistencies()
-            }
-                .getOrNull()
-                ?.takeIf { it.isNotEmpty() }
-                ?: continue
+        val inconsistencies: List<Inconsistency> = runCatching {
+            gitRepository.collectJavaFilesOnCommit(Path.of(srcDirName), mergeCommit)
+                .flatMap { it.extractCodeBlocks() }
+                .findInconsistencies()
+        }
+            .getOrNull()
+            ?.takeIf { it.isNotEmpty() }
+            ?: continue
 
         resultFile.writeText(pullRequest.number.toString() + System.lineSeparator())
         resultFile.writeText(inconsistencies.joinToString(System.lineSeparator()) + System.lineSeparator() + System.lineSeparator())
