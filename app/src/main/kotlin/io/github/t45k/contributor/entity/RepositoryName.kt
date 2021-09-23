@@ -7,8 +7,8 @@ data class RepositoryName(val name: String) {
         name.takeIf(Regex(".+/.+")::matches) ?: throw InvalidRepositoryNameException(name)
     }
 
-    fun toLocalPath(): Path = Path.of("./storage/${name}")
-    fun toGitHubUrl(): String = "https://github.com/$name"
+    val localPath: Path by lazy { Path.of(".", "storage", name) }
+    val gitHubUrl: String by lazy { "https://github.com/$name" }
 }
 
 class InvalidRepositoryNameException(name: String) : RuntimeException() {

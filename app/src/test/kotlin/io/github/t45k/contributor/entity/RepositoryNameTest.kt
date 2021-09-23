@@ -11,7 +11,7 @@ internal class RepositoryNameTest {
         val repositoryName = RepositoryName("T45K/CLIONE")
 
         assertEquals("T45K/CLIONE", repositoryName.name)
-        assertEquals(Path.of("./storage/T45K/CLIONE"), repositoryName.toLocalPath())
+        assertEquals(Path.of("./storage/T45K/CLIONE"), repositoryName.localPath)
     }
 
     @Test

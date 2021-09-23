@@ -20,20 +20,21 @@ class GitRepository private constructor(private val repositoryName: RepositoryNa
 
     companion object {
         fun cloneFromGitHubIfNotExists(repositoryName: RepositoryName): GitRepository =
-            if (repositoryName.toLocalPath().exists()) {
-                Git(FileRepository(repositoryName.toLocalPath().resolve(".git").toFile()))
+            if (repositoryName.localPath.exists()) {
+                Git(FileRepository(repositoryName.localPath.resolve(".git").toFile()))
             } else {
                 Git.cloneRepository()
-                    .setURI("https://github.com/$repositoryName.git")
-                    .setDirectory(repositoryName.toLocalPath().toFile())
+                    .setURI("https://github.com/${repositoryName.name}.git")
+                    .setDirectory(repositoryName.localPath.toFile())
                     .call()
             }.let { GitRepository(repositoryName, it) }
     }
 
-    fun fetchPullRequests(token: String): List<PullRequest> =
+    fun fetchPullRequests(token: String): Sequence<PullRequest> =
         buildGitHubClient(token)
             .getRepository(repositoryName.name)
             .getPullRequests(GHIssueState.CLOSED)
+            .asSequence()
             .filter { it.isMerged }
             .map { PullRequest(it.number, repositoryName) }
 
@@ -52,7 +53,10 @@ class GitRepository private constructor(private val repositoryName: RepositoryNa
             )
         return srcDir.walk()
             .filter { it.isRegularFile() && it.toString().endsWith(".java") }
-            .map { TrackedJavaFiles(it, javaFileToDiffEntries[it.relativize(srcDir)] ?: emptyList()) }
+            .map {
+                val relativeFilePath = repositoryName.localPath.relativize(it)
+                TrackedJavaFiles(it, javaFileToDiffEntries[relativeFilePath] ?: emptyList())
+            }
     }
 
     private fun buildGitHubClient(token: String): GitHub =

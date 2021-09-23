@@ -2,15 +2,14 @@ package io.github.t45k.contributor
 
 import io.github.t45k.contributor.entity.GitCommit
 import io.github.t45k.contributor.entity.GitRepository
-import io.github.t45k.contributor.entity.Inconsistency
 import io.github.t45k.contributor.entity.RepositoryName
 import io.github.t45k.contributor.entity.findInconsistencies
 import java.nio.file.Path
 import java.util.ResourceBundle
-import kotlin.io.path.ExperimentalPathApi
-import kotlin.io.path.writeText
+import kotlin.io.path.appendText
+import kotlin.io.path.createFile
+import kotlin.io.path.deleteIfExists
 
-@ExperimentalPathApi
 fun main(args: Array<String>) {
     // TODO parse
     val (repositoryNameText, srcDirName) = args
@@ -20,21 +19,32 @@ fun main(args: Array<String>) {
 
     val repositoryName = RepositoryName(repositoryNameText)
     val gitRepository = GitRepository.cloneFromGitHubIfNotExists(repositoryName)
-    val resultFile = Path.of(repositoryNameText.replace("/", "_"))
+    val resultFile = Path.of(".", repositoryNameText.replace("/", "_"))
+        .apply { deleteIfExists() }
+        .createFile()
+    val srcDir = repositoryName.localPath.resolve(srcDirName)
     for (pullRequest in gitRepository.fetchPullRequests(token)) {
-        val mergeCommit: GitCommit = pullRequest.mergeCommit
-            .takeIf { gitRepository.includesModifiedJavaFiles(it) }
-            ?: continue
-        val inconsistencies: List<Inconsistency> = runCatching {
-            gitRepository.collectJavaFilesOnCommit(Path.of(srcDirName), mergeCommit)
+        println(pullRequest.number)
+        val inconsistencies = runCatching {
+            val mergeCommit: GitCommit = pullRequest.mergeCommit
+                .takeIf { gitRepository.includesModifiedJavaFiles(it) }
+                ?: throw RuntimeException()
+            gitRepository.collectJavaFilesOnCommit(srcDir, mergeCommit)
                 .flatMap { it.extractCodeBlocks() }
                 .findInconsistencies()
+                .takeIf { it.isNotEmpty() }
+                ?: throw RuntimeException()
         }
             .getOrNull()
-            ?.takeIf { it.isNotEmpty() }
             ?: continue
 
-        resultFile.writeText(pullRequest.number.toString() + System.lineSeparator())
-        resultFile.writeText(inconsistencies.joinToString(System.lineSeparator()) + System.lineSeparator() + System.lineSeparator())
+        resultFile.appendText(
+            """
+            |${pullRequest.number}
+            |${inconsistencies.joinToString(System.lineSeparator())}
+            |
+            |
+        """.trim()
+        )
     }
 }

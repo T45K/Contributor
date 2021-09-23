@@ -10,7 +10,7 @@ class PullRequest(val number: Int, private val repositoryName: RepositoryName) {
     val mergeCommit: GitCommit by lazy { fetchMergeCommitSha() }
 
     private fun fetchMergeCommitSha(): GitCommit =
-        (Jsoup.connect("${repositoryName.toGitHubUrl()}/pull/$number")
+        (Jsoup.connect("${repositoryName.gitHubUrl}/pull/$number")
             .get()
             .text()
             .let { "merged commit [0-9a-z]{7}".toRegex().find(it) }
