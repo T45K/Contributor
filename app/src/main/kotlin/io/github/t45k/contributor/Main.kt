@@ -14,9 +14,9 @@ import kotlin.io.path.writeText
 fun main(args: Array<String>) {
     // TODO parse
     val (repositoryNameText, srcDirName) = args
-    val token = (ResourceBundle.getBundle("resource")
+    val token = ResourceBundle.getBundle("resource")
         ?.getString("GITHUB_TOKEN")
-        ?: throw RuntimeException())
+        ?: ""
 
     val repositoryName = RepositoryName(repositoryNameText)
     val gitRepository = GitRepository.cloneFromGitHubIfNotExists(repositoryName)

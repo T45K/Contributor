@@ -10,6 +10,7 @@ import org.eclipse.jgit.internal.storage.file.FileRepository
 import org.eclipse.jgit.lib.AbbreviatedObjectId
 import org.eclipse.jgit.lib.Constants
 import org.kohsuke.github.GHIssueState
+import org.kohsuke.github.GitHub
 import org.kohsuke.github.GitHubBuilder
 import java.nio.file.Path
 import kotlin.io.path.exists
@@ -30,9 +31,7 @@ class GitRepository private constructor(private val repositoryName: RepositoryNa
     }
 
     fun fetchPullRequests(token: String): List<PullRequest> =
-        GitHubBuilder()
-            .withOAuthToken(token)
-            .build()
+        buildGitHubClient(token)
             .getRepository(repositoryName.name)
             .getPullRequests(GHIssueState.CLOSED)
             .filter { it.isMerged }
@@ -55,6 +54,14 @@ class GitRepository private constructor(private val repositoryName: RepositoryNa
             .filter { it.isRegularFile() && it.toString().endsWith(".java") }
             .map { TrackedJavaFiles(it, javaFileToDiffEntries[it.relativize(srcDir)] ?: emptyList()) }
     }
+
+    private fun buildGitHubClient(token: String): GitHub =
+        if (token.isNotEmpty()) {
+            GitHubBuilder().withOAuthToken(token)
+        } else {
+            GitHubBuilder()
+        }
+            .build()
 
     private fun checkout(commit: GitCommit) {
         git.checkout()
