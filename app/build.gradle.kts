@@ -10,7 +10,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     // Apply the org.jetbrains.kotlin.jvm Plugin to add support for Kotlin.
-    id("org.jetbrains.kotlin.jvm") version "1.4.31"
+    id("org.jetbrains.kotlin.jvm") version "1.5.30"
 
     // Apply the application plugin to add support for building a CLI application in Java.
     application
@@ -53,5 +53,5 @@ dependencies {
 
 application {
     // Define the main class for the application.
-    mainClass.set("io.github.t45k.sclione.SClioneMainKt")
+    mainClass.set("io.github.t45k.contributor.MainKt")
 }
