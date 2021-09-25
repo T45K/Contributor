@@ -24,7 +24,6 @@ fun main(args: Array<String>) {
         .createFile()
     val srcDir = repositoryName.localPath.resolve(srcDirName)
     for (pullRequest in gitRepository.fetchPullRequests(token)) {
-        println(pullRequest.number)
         val inconsistencies = try {
             val mergeCommit: GitCommit = pullRequest.mergeCommit
                 .takeIf { gitRepository.includesModifiedJavaFiles(it) }
@@ -35,6 +34,7 @@ fun main(args: Array<String>) {
                 .takeIf { it.isNotEmpty() }
                 ?: continue
         } catch (e: Exception) {
+            println(pullRequest.number)
             println(e)
             continue
         }
