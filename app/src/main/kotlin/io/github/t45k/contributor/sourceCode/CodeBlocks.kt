@@ -2,6 +2,7 @@ package io.github.t45k.contributor.sourceCode
 
 fun List<CodeBlock>.findInconsistencies(): List<Inconsistency> {
     val (modifiedCodeBlocks, unmodifiedCodeBlocks) = this.partition { it.isModified }
+        .let { it.first to it.second.sortedBy { codeBlock -> codeBlock.statements.value.size } }
     return modifiedCodeBlocks
         .map { modifiedCodeBlock ->
             val begin = unmodifiedCodeBlocks

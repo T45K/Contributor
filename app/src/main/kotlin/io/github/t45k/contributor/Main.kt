@@ -25,18 +25,19 @@ fun main(args: Array<String>) {
     val srcDir = repositoryName.localPath.resolve(srcDirName)
     for (pullRequest in gitRepository.fetchPullRequests(token)) {
         println(pullRequest.number)
-        val inconsistencies = runCatching {
+        val inconsistencies = try {
             val mergeCommit: GitCommit = pullRequest.mergeCommit
                 .takeIf { gitRepository.includesModifiedJavaFiles(it) }
-                ?: throw RuntimeException()
+                ?: continue
             gitRepository.collectJavaFilesOnCommit(srcDir, mergeCommit)
                 .flatMap { it.extractCodeBlocks() }
                 .findInconsistencies()
                 .takeIf { it.isNotEmpty() }
-                ?: throw RuntimeException()
+                ?: continue
+        } catch (e: Exception) {
+            println(e)
+            continue
         }
-            .getOrNull()
-            ?: continue
 
         resultFile.appendText(
             """
