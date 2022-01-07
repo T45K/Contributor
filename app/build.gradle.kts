@@ -14,6 +14,8 @@ plugins {
 
     // Apply the application plugin to add support for building a CLI application in Java.
     application
+
+    groovy
 }
 
 repositories {
@@ -49,6 +51,11 @@ dependencies {
 
     // Use the Kotlin JUnit integration.
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
+
+    // Use Spock
+    implementation("org.codehaus.groovy:groovy:3.0.8")
+    testImplementation(platform("org.spockframework:spock-bom:2.0-groovy-3.0"))
+    testImplementation("org.spockframework:spock-core")
 }
 
 application {
